@@ -248,6 +248,72 @@ struct team* circle(unsigned n, unsigned num_of_teams, team* teams) {
 	return (teams);
 }
 
+struct team* swiss_rec(unsigned num_of_teams,  unsigned n, unsigned x, unsigned y, team* teams) {
+	unsigned len = y - x;
+
+	if (len == 1) return 0;
+
+	for (unsigned i = x; i < x + len / 2; i++) {
+		if (teams[i].number <= teams[x + len / 2 + i].number) { // íå ğàáîòàåò, åñòü x = 2, à y = 4
+			double probability_of_winning_first = (1.0 / 2) * 100 + ((teams[x + len / 2 + i].number - teams[i].number) * 1.0 / (pow(2, n + 1))) * 100;
+			double probability_of_winning_second = 100 - probability_of_winning_first;
+			double result = rand() * 100.0 / RAND_MAX;
+			if (result <= probability_of_winning_first) {
+				teams[i].win += 1;
+				teams[x + len / 2 + i].lose += 1;
+			}
+			else {
+				teams[x + len / 2 + i].win += 1;
+				teams[i].lose += 1;
+			}
+		}
+		else {
+			double probability_of_winning_first = (1.0 / 2) * 100 + ((teams[i].number - teams[x + len / 2 + i].number) * 1.0 / (pow(2, n + 1))) * 100;
+			double probability_of_winning_second = 100 - probability_of_winning_first;
+			double result = rand() * 100.0 / RAND_MAX;
+			if (result <= probability_of_winning_first) {
+				teams[x + len / 2 + i].win += 1;
+				teams[i].lose += 1;
+			}
+			else {
+				teams[i].win += 1;
+				teams[x + len / 2 + i].lose += 1;
+			}
+		}
+	}
+
+	teams = sort(x, y, teams);
+
+	swiss_rec(num_of_teams, n, x, x + len / 2, teams);
+	swiss_rec(num_of_teams, n, x + len / 2, y, teams);
+	return (teams);
+}
+
+struct team* swiss(unsigned n, unsigned num_of_teams, team* teams) {
+	for (unsigned i = 0; i < num_of_teams; i++) {
+		teams[i].win = 0;
+		teams[i].lose = 0;
+	}
+	teams = swiss_rec(num_of_teams, n, 0, num_of_teams, teams);
+	teams = sort(0, num_of_teams, teams);
+
+	cout << "\n";
+	cout << "\n";
+	cout << "\n";
+	for (unsigned i = 0; i != num_of_teams; i++) {
+		cout << teams[i].number << "  ";
+	}
+
+	cout << "\n";
+
+	for (unsigned i = 0; i != num_of_teams; i++) {
+		cout << teams[i].win << "  ";
+	}
+	cout << "\n";
+
+	return (teams);
+}
+
 int main() {
 	srand(time(NULL));
 	unsigned int n;
@@ -262,27 +328,10 @@ int main() {
 	// Êğóãîâîé òóğíèğ
 	teams = circle(n, num_of_teams, teams);
 
-	// Swiss system
-	/*unsigned half = num_of_teams / 2;
-
-	team* swiss = new team[num_of_teams];
-	swiss = teams_init(num_of_teams, swiss);
-
-	for (unsigned i = 0; i != num_of_teams; i++) {
-		swiss[i] = teams[i];
-		swiss[i].win = 0;
-		swiss[i].lose = 0;
-	}*/
-
-	//// Ïåğâûé òóğ
-	//for (unsigned i = 0; i != half; i++) {
-	//	if (swiss[i + half].number > swiss[i].number) {
-	//		swiss = win_lose(num_of_teams, swiss, swiss[i + half].number, swiss[i].number, n);
-	//	}
-	//	else {
-	//		swiss = win_lose(num_of_teams, swiss, swiss[i].number, swiss[i + half].number, n);
-	//	}
-	//}
+	// Swiss
+	swiss(n, num_of_teams, teams);
 
 	return 0;
+	// Îøèáêà ÍÀĞÓØÅÍÈÅ ÏĞÀÂ ÄÎÑÒÓÏÀ ÏĞÈ ×ÒÅÍÈÈ ÏÎ ÀÄĞÅÑÑÓ
+	// Î×ÈÑÒÈÒÜ ÏÀÌßÒÜ
 }
