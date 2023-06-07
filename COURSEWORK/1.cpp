@@ -12,7 +12,7 @@ using namespace std;
 
 // Швейцарская: рекурсивный алгоритм по индексам, сорт по части массива. DONE
 
-// Турнир с немедленным выбыванием
+// Турнир с немедленным выбыванием 
 
 //ОСВОБОЖДЕНИЕ ПАМЯТИ DONE
 
@@ -22,68 +22,41 @@ typedef struct team {
 	unsigned lose;
 } team;
 
-struct team* teams_init(unsigned num_of_teams, team* teams) {
-	for (unsigned i = 0; i != num_of_teams; i++) {
-		teams[i].number = i + 1;
-		teams[i].win = 0;
-		teams[i].lose = 0;
+void teams_init(unsigned num_of_teams, vector <team>& teams) {
+	for (unsigned f = 0; f < num_of_teams; f++) {
+		teams[f].number = f + 1;
+		teams[f].win = 0;
+		teams[f].lose = 0;
 	}
-	return (teams);
+	//return (teams);
 }
 
-struct team* sort(unsigned x, unsigned y, team* teams) {
-	for (unsigned i = x + 1; i <= y - 1; i++) {
-		unsigned j = i;
-		team a = teams[i];
-		while ((j > 0) && (a.win > teams[j - 1].win)) {
-			teams[j] = teams[j - 1];
-			j--;
-		}
-		teams[j] = a;
-	}
-	return (teams);
-}
+//void sort(unsigned x, unsigned y, vector <team>& teams) {
+//	for (unsigned i = x + 1; i <= y - 1; i++) {
+//		unsigned j = i;
+//		team a = teams[i];
+//		while ((j > 0) && (a.win > teams[j - 1].win)) {
+//			teams[j] = teams[j - 1];
+//			j--;
+//		}
+//		teams[j] = a;
+//	}
+//	//return (teams);
+//}
 
-struct team* sort_circle(unsigned x, unsigned y, team* teams, unsigned* tab[]) { // Переделать, не робит
-	for (int i = x + 1; i < y; i++) {
-		unsigned j = i;
-		team a = teams[i];
-		while ((j > 0) && (a.win > teams[j - 1].win)) {
-			teams[j] = teams[j - 1];
-			j--;
-		}
-		if (a.win == teams[j].win) {
-			unsigned cur = 0, next = 0;
-			for (unsigned g = 0; g < y; g++) {
-				if (tab[i][g] == 1) {
-					for (unsigned h = 0; h < y; h++) {
-						cur += tab[g][h];
-					}
-				}
-			}
-			for (unsigned g = 0; g < y; g++) {
-				if (tab[j - 1][g] == 1) {
-					for (unsigned h = 0; h < y; h++) {
-						next += tab[g][h];
-					}
-				}
-			}
-			if (next < cur) {
-				teams[j] = a;
-				team tmp = teams[j];
+void sort(unsigned x, unsigned y, vector <team>& teams) {
+	for (int i = x + 1; i <= y - 1; i++) {
+		for (int j = y - 1; j >= i; j--) {
+			if (teams[j - 1].win < teams[j].win) {
+				team a = teams[j];
 				teams[j] = teams[j - 1];
-				teams[j - 1] = tmp;
+				teams[j - 1] = a;
 			}
 		}
-		else {
-			teams[j] = a;
-		}
-
 	}
-	return (teams);
 }
 
-struct team* win_lose(unsigned num_of_teams, team* teams, unsigned j, unsigned i, unsigned n, unsigned* tab[]) {
+void win_lose(unsigned num_of_teams, vector <team>& teams, unsigned j, unsigned i, unsigned n, unsigned* tab[]) {
 	double probability_of_winning_first = (1.0 / 2) * 100 + ((j - i) * 1.0 / (pow(2, n + 1))) * 100;
 	double probability_of_winning_second = 100 - probability_of_winning_first;
 	double result = rand() * 100.0 / RAND_MAX;
@@ -97,10 +70,10 @@ struct team* win_lose(unsigned num_of_teams, team* teams, unsigned j, unsigned i
 		teams[i].lose += 1;
 		tab[j][i] = 1;
 	}
-	return (teams);
+	//return (teams);
 }
 
-struct team* circle(unsigned n, unsigned num_of_teams, team* teams) {
+void circle(unsigned n, unsigned num_of_teams, vector <team>& teams) {
 	unsigned** tab = new unsigned* [num_of_teams];
 	for (unsigned i = 0; i < num_of_teams; i++) {
 		tab[i] = new unsigned[num_of_teams];
@@ -115,11 +88,11 @@ struct team* circle(unsigned n, unsigned num_of_teams, team* teams) {
 	// Круговая классификация
 	for (unsigned i = 0; i != num_of_teams; i++) {
 		for (unsigned j = i + 1; j != num_of_teams; j++) {
-			teams = win_lose(num_of_teams, teams, j, i, n, tab);
+			win_lose(num_of_teams, teams, j, i, n, tab);
 		}
 	}
 
-	for (unsigned i = 0; i < num_of_teams; i++) {
+	/*for (unsigned i = 0; i < num_of_teams; i++) {
 		for (unsigned j = 0; j < num_of_teams; j++) {
 			cout << tab[i][j] << " ";
 		}
@@ -128,7 +101,11 @@ struct team* circle(unsigned n, unsigned num_of_teams, team* teams) {
 
 	cout << "\n";
 
-	teams = sort(0, num_of_teams, teams);
+	for (unsigned i = 0; i != num_of_teams; i++) {
+		cout << teams[i].win << "  ";
+	}
+	cout << "\n";
+	cout << "\n";*/
 
 	unsigned flag = 1;
 	vector <unsigned> same_vic;
@@ -169,12 +146,14 @@ struct team* circle(unsigned n, unsigned num_of_teams, team* teams) {
 
 			flag = 1;
 			unsigned tmp = 0;
-			for (unsigned j = i - same_vic.size() + 2; j < i + 1; j++) {
+			for (unsigned j = i - same_vic.size() + 2; j < i + 2; j++) {
 				teams[j].number = same_vic[tmp];
 				tmp++;
 			}
 			same_vic.clear();
 			vector <unsigned> same_vic;
+
+
 		}
 
 		else if (flag != 1 && teams[i].win != teams[i + 1].win) {
@@ -233,71 +212,70 @@ struct team* circle(unsigned n, unsigned num_of_teams, team* teams) {
 
 	vector <unsigned>().swap(same_vic);
 
-	for (unsigned i = 0; i != num_of_teams; i++) {
-		cout << teams[i].number << "  ";
-	}
+	//for (unsigned i = 0; i != num_of_teams; i++) {
+	//	cout << teams[i].number << "  ";
+	//}
 
-	cout << "\n";
+	//cout << "\n";
 
-	for (unsigned i = 0; i != num_of_teams; i++) {
-		cout << teams[i].win << "  ";
-	}
+	//for (unsigned i = 0; i != num_of_teams; i++) {
+	//	cout << teams[i].win << "  ";
+	//}
 
 	delete[] tab;
 
-	return (teams);
+	//return (teams);
 }
 
-struct team* swiss_rec(unsigned num_of_teams,  unsigned n, unsigned x, unsigned y, team* teams) {
+void swiss_rec(unsigned num_of_teams,  unsigned n, unsigned x, unsigned y, vector <team>& teams) {
 	unsigned len = y - x;
 
-	if (len == 1) return 0;
+	if (len == 1) return ;
 
 	for (unsigned i = x; i < x + len / 2; i++) {
-		if (teams[i].number <= teams[x + len / 2 + i].number) { 
-			double probability_of_winning_first = (1.0 / 2) * 100 + ((teams[x + len / 2 + i].number - teams[i].number) * 1.0 / (pow(2, n + 1))) * 100;
+		if (teams[i].number <= teams[len / 2 + i].number) { 
+			double probability_of_winning_first = (1.0 / 2) * 100 + ((teams[len / 2 + i].number - teams[i].number) * 1.0 / (pow(2, n + 1))) * 100;
 			double probability_of_winning_second = 100 - probability_of_winning_first;
 			double result = rand() * 100.0 / RAND_MAX;
 			if (result <= probability_of_winning_first) {
 				teams[i].win += 1;
-				teams[x + len / 2 + i].lose += 1;
+				teams[len / 2 + i].lose += 1;
 			}
 			else {
-				teams[x + len / 2 + i].win += 1;
+				teams[len / 2 + i].win += 1;
 				teams[i].lose += 1;
 			}
 		}
 		else {
-			double probability_of_winning_first = (1.0 / 2) * 100 + ((teams[i].number - teams[x + len / 2 + i].number) * 1.0 / (pow(2, n + 1))) * 100;
+			double probability_of_winning_first = (1.0 / 2) * 100 + ((teams[i].number - teams[len / 2 + i].number) * 1.0 / (pow(2, n + 1))) * 100;
 			double probability_of_winning_second = 100 - probability_of_winning_first;
 			double result = rand() * 100.0 / RAND_MAX;
 			if (result <= probability_of_winning_first) {
-				teams[x + len / 2 + i].win += 1;
+				teams[len / 2 + i].win += 1;
 				teams[i].lose += 1;
 			}
 			else {
 				teams[i].win += 1;
-				teams[x + len / 2 + i].lose += 1;
+				teams[len / 2 + i].lose += 1;
 			}
 		}
 	}
 
-	teams = sort(x, y, teams);
+	sort(x, y, teams);
 
 	swiss_rec(num_of_teams, n, x, x + len / 2, teams);
 	swiss_rec(num_of_teams, n, x + len / 2, y, teams);
-	return (teams);
 }
 
-struct team* swiss(unsigned n, unsigned num_of_teams, team* teams) {
+void swiss(unsigned n, unsigned num_of_teams, vector <team>& teams) {
 	for (unsigned i = 0; i < num_of_teams; i++) {
 		teams[i].win = 0;
 		teams[i].lose = 0;
 	}
-	teams = swiss_rec(num_of_teams, n, 0, num_of_teams, teams);
-	teams = sort(0, num_of_teams, teams);
+	swiss_rec(num_of_teams, n, 0, num_of_teams, teams);
+	sort(0, num_of_teams, teams);
 
-	cout << "\n";
+	/*cout << "\n";
 	cout << "\n";
 	cout << "\n";
 	for (unsigned i = 0; i != num_of_teams; i++) {
@@ -309,13 +287,13 @@ struct team* swiss(unsigned n, unsigned num_of_teams, team* teams) {
 	for (unsigned i = 0; i != num_of_teams; i++) {
 		cout << teams[i].win << "  ";
 	}
-	cout << "\n";
+	cout << "\n";*/
 
-	return (teams);
+	//return (teams);
 }
 
 // Добавить сортировку в середине таблицы
-struct team* elemination(unsigned n, unsigned num_of_teams, team* teams) { 
+void elemination(unsigned n, unsigned num_of_teams, vector <team>& teams) {
 	/*team* elem = new team[num_of_teams];
 	elem = teams_init(num_of_teams, elem);
 
@@ -332,12 +310,12 @@ struct team* elemination(unsigned n, unsigned num_of_teams, team* teams) {
 			elem.push_back(a);
 		}
 	}
-	cout << "\n";
+	/*cout << "\n";
 	cout << "\n";
 	for (unsigned i = 0; i < elem.size(); i++) {
 		cout << elem[i] << "  ";
 	}
-	cout << "\n";
+	cout << "\n";*/
 
 	unsigned tmp_num = num_of_teams;
 	/*team *tours = new team[tmp_num];*/
@@ -393,9 +371,9 @@ struct team* elemination(unsigned n, unsigned num_of_teams, team* teams) {
 		}
 	}
 
-	teams = sort(0, num_of_teams, teams);
+	sort(0, num_of_teams, teams);
 
-	cout << "\n";
+	/*cout << "\n";
 	cout << "\n";
 	cout << "\n";
 	for (unsigned i = 0; i != num_of_teams; i++) {
@@ -407,12 +385,12 @@ struct team* elemination(unsigned n, unsigned num_of_teams, team* teams) {
 	for (unsigned i = 0; i != num_of_teams; i++) {
 		cout << teams[i].win << "  ";
 	}
-	cout << "\n";
+	cout << "\n";*/
 
-	return (teams);
+	//return (teams);
 } 
 
-void main() {
+int main() {
 	srand(time(NULL));
 	unsigned int n;
 	cout << "Enter a power of two: ";
@@ -420,18 +398,274 @@ void main() {
 	unsigned num_of_teams{ (unsigned)pow(2, n) };
 	cout << "Number of teams: " << num_of_teams << "\n";
 
-	team* teams = new team[num_of_teams];
-	teams = teams_init(num_of_teams, teams);
-	
-	// Круговой турнир
-	teams = circle(n, num_of_teams, teams);
+	//team* teams = new team[num_of_teams];
+	vector <team> teams(num_of_teams);
+	teams_init(num_of_teams, teams);
 
-	// Swiss
-	teams = swiss(n, num_of_teams, teams);
+	cout << "\n" << "1: Circle and Swiss" << "\n";
 
-	// Elimination
-	teams = elemination(n, num_of_teams, teams);
+	vector <team> teams1(num_of_teams);
+	vector <team> teams2(num_of_teams);
+	vector <double> rs;
+	vector <int> ms;
+	teams_init(num_of_teams, teams1);
+	teams_init(num_of_teams, teams2);
 
+	for (int i = 0; i < 100; i++) {
+
+		circle(n, num_of_teams, teams);
+		for (int j = 0; j < num_of_teams; j++) {
+			teams1[j] = teams[j];
+		}
+
+		swiss(n, num_of_teams, teams);
+		for (int j = 0; j < num_of_teams; j++) {
+			teams2[j] = teams[j];
+		}
+
+		int m = 0;
+		double r = 0.0, s = 0.0;
+		for (int g = 0; g < num_of_teams; g++) {
+			if (teams1[g].number == teams2[g].number) m++;
+			int circle_pl, swiss_pl;
+			for (int j = 0; j < num_of_teams; j++) {
+				if (teams1[j].number == g + 1) {
+					circle_pl = j;
+					break;
+				}
+			}
+			for (int j = 0; j < num_of_teams; j++) {
+				if (teams2[j].number == g + 1) {
+					swiss_pl = j;
+					break;
+				}
+			}
+			
+			s += (circle_pl - swiss_pl) * (circle_pl - swiss_pl) * 1.0 / ((n * n * n - n) * 1.0);
+		}
+
+		r = 1 - 6 * s;
+
+		rs.push_back(r);
+		ms.push_back(m);
+
+		/*cout << "\n";
+		cout << "\n";
+		for (int i = 0; i < num_of_teams; i++) {
+			cout << teams1[i].number << "  ";
+		}
+		cout << "\n";
+		for (int i = 0; i < num_of_teams; i++) {
+			cout << teams1[i].win << "  ";
+		}
+		cout << "\n";
+		cout << "\n";
+		for (int i = 0; i < num_of_teams; i++) {
+			cout << teams2[i].number << "  ";
+		}
+		cout << "\n";
+		for (int i = 0; i < num_of_teams; i++) {
+			cout << teams2[i].win << "  ";
+		}*/
+
+		teams_init(num_of_teams, teams);
+		teams_init(num_of_teams, teams1);
+		teams_init(num_of_teams, teams2);
+	}
+
+
+	double sumr = 0.0;
+	double r = 0.0;
+	int summ = 0;
+	int m = 0;
+	for (int i = 0; i < rs.size(); i++) {
+		sumr += rs[i];
+		summ += ms[i];
+	}
+	r = sumr / rs.size();
+	m = summ / ms.size();
+
+	cout << "R = " << r << " M = " << m << "\n";
+	rs.clear();
+	ms.clear();
+
+
+
+	teams_init(num_of_teams, teams);
+
+	cout << "\n" << "2: Circle and Elemination" << "\n";
+
+	teams_init(num_of_teams, teams1);
+	teams_init(num_of_teams, teams2);
+
+	for (int i = 0; i < 100; i++) {
+
+		circle(n, num_of_teams, teams);
+		for (int j = 0; j < num_of_teams; j++) {
+			teams1[j] = teams[j];
+		}
+
+		elemination(n, num_of_teams, teams);
+		for (int j = 0; j < num_of_teams; j++) {
+			teams2[j] = teams[j];
+		}
+
+		m = 0;
+		r = 0.0;
+		double s = 0.0;
+		for (int g = 0; g < num_of_teams; g++) {
+			if (teams1[g].number == teams2[g].number) m++;
+			int circle_pl, elem_pl;
+			for (int j = 0; j < num_of_teams; j++) {
+				if (teams1[j].number == g + 1) {
+					circle_pl = j;
+					break;
+				}
+			}
+			for (int j = 0; j < num_of_teams; j++) {
+				if (teams2[j].number == g + 1) {
+					elem_pl = j;
+					break;
+				}
+			}
+
+			s += (double)pow((circle_pl - elem_pl) * 1.0, 2 * 1.0) / ((n * n * n - n) * 1.0);
+		}
+
+		r = 1 - 6 * s;
+
+		rs.push_back(r);
+		ms.push_back(m);
+
+		/*cout << "\n";
+		cout << "\n";
+		for (int i = 0; i < num_of_teams; i++) {
+			cout << teams1[i].number << "  ";
+		}
+		cout << "\n";
+		for (int i = 0; i < num_of_teams; i++) {
+			cout << teams1[i].win << "  ";
+		}
+		cout << "\n";
+		cout << "\n";
+		for (int i = 0; i < num_of_teams; i++) {
+			cout << teams2[i].number << "  ";
+		}
+		cout << "\n";
+		for (int i = 0; i < num_of_teams; i++) {
+			cout << teams2[i].win << "  ";
+		}*/
+
+		teams_init(num_of_teams, teams);
+		teams_init(num_of_teams, teams1);
+		teams_init(num_of_teams, teams2);
+	}
+
+
+	sumr = 0.0;
+	r = 0.0;
+	summ = 0;
+	m = 0;
+	for (int i = 0; i < rs.size(); i++) {
+		sumr += rs[i];
+		summ += ms[i];
+	}
+	r = sumr / rs.size();
+	m = summ / ms.size();
+
+	cout << "R = " << r << " M = " << m << "\n";
+	rs.clear();
+	ms.clear();
+
+
+
+	teams_init(num_of_teams, teams);
+
+	cout << "\n" << "3: Swiss and Elemination" << "\n";
+
+	teams_init(num_of_teams, teams1);
+	teams_init(num_of_teams, teams2);
+
+	for (int i = 0; i < 100; i++) {
+
+		circle(n, num_of_teams, teams);
+		swiss(n, num_of_teams, teams);
+		for (int j = 0; j < num_of_teams; j++) {
+			teams1[j] = teams[j];
+		}
+
+		elemination(n, num_of_teams, teams);
+		for (int j = 0; j < num_of_teams; j++) {
+			teams2[j] = teams[j];
+		}
+
+		m = 0;
+		r = 0.0;
+		double s = 0.0;
+		for (int g = 0; g < num_of_teams; g++) {
+			if (teams1[g].number == teams2[g].number) m++;
+			int swiss_pl, elem_pl;
+			for (int j = 0; j < num_of_teams; j++) {
+				if (teams1[j].number == g + 1) {
+					swiss_pl = j;
+					break;
+				}
+			}
+			for (int j = 0; j < num_of_teams; j++) {
+				if (teams2[j].number == g + 1) {
+					elem_pl = j;
+					break;
+				}
+			}
+
+			s += (double)pow((swiss_pl - elem_pl) * 1.0, 2 * 1.0) / ((n * n * n - n) * 1.0);
+		}
+
+		r = 1 - 6 * s;
+
+		rs.push_back(r);
+		ms.push_back(m);
+
+		/*cout << "\n";
+		cout << "\n";
+		for (int i = 0; i < num_of_teams; i++) {
+			cout << teams1[i].number << "  ";
+		}
+		cout << "\n";
+		for (int i = 0; i < num_of_teams; i++) {
+			cout << teams1[i].win << "  ";
+		}
+		cout << "\n";
+		cout << "\n";
+		for (int i = 0; i < num_of_teams; i++) {
+			cout << teams2[i].number << "  ";
+		}
+		cout << "\n";
+		for (int i = 0; i < num_of_teams; i++) {
+			cout << teams2[i].win << "  ";
+		}*/
+
+		teams_init(num_of_teams, teams);
+		teams_init(num_of_teams, teams1);
+		teams_init(num_of_teams, teams2);
+	}
+
+
+	sumr = 0.0;
+	r = 0.0;
+	summ = 0;
+	m = 0;
+	for (int i = 0; i < rs.size(); i++) {
+		sumr += rs[i];
+		summ += ms[i];
+	}
+	r = sumr / rs.size();
+	m = summ / ms.size();
+
+	cout << "R = " << r << " M = " << m << "\n";
+	rs.clear();
+	ms.clear();
+
+	return 0;
 	// Ошибка НАРУШЕНИЕ ПРАВ ДОСТУПА ПРИ ЧТЕНИИ ПО АДРЕСУ
-	// ОЧИСТИТЬ ПАМЯТЬ
 }
