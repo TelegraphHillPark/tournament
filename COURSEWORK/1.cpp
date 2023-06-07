@@ -340,15 +340,14 @@ struct team* elemination(unsigned n, unsigned num_of_teams, team* teams) {
 	cout << "\n";
 
 	unsigned tmp_num = num_of_teams;
-	team *tours = new team[tmp_num];
+	/*team *tours = new team[tmp_num];*/
+	vector <int> tours(tmp_num);
 
 	for (int i = 0; i < num_of_teams; i++) {
 		teams[i].number = i + 1;
 		teams[i].win = 0;
 		teams[i].lose = 0;
-		tours[i].number = elem[i];
-		tours[i].win = 0;
-		tours[i].lose = 0;
+		tours[i] = elem[i];
 	}
 
 	for (int tour = 0; tour < n; tour++) {
@@ -356,47 +355,43 @@ struct team* elemination(unsigned n, unsigned num_of_teams, team* teams) {
 		tmp.reserve(tmp_num / 2);
 
 		for (int i = 0; i < tmp_num - 1; i += 2) {
-			if (tours[i].number <= tours[i + 1].number) { 
-				double probability_of_winning_first = (1.0 / 2) * 100 + ((tours[i + 1].number - tours[i].number) * 1.0 / (pow(2, n + 1))) * 100;
+			if (tours[i] <= tours[i + 1]) { 
+				double probability_of_winning_first = (1.0 / 2) * 100 + ((tours[i + 1] - tours[i]) * 1.0 / (pow(2, n + 1))) * 100;
 				double probability_of_winning_second = 100 - probability_of_winning_first;
 				double result = rand() * 100.0 / RAND_MAX;
 				if (result <= probability_of_winning_first) {
-					teams[tours[i].number - 1].win += 1;
-					teams[tours[i + 1].number - 1].lose += 1;
-					tmp.push_back(tours[i].number);
+					teams[tours[i] - 1].win += 1;
+					teams[tours[i + 1] - 1].lose += 1;
+					tmp.push_back(tours[i]);
 				}
 				else {
-					teams[tours[i + 1].number - 1].win += 1;
-					teams[tours[i].number - 1].lose += 1;
-					tmp.push_back(tours[i + 1].number);
+					teams[tours[i + 1] - 1].win += 1;
+					teams[tours[i] - 1].lose += 1;
+					tmp.push_back(tours[i + 1]);
 				}
 			}
 			else {
-				double probability_of_winning_first = (1.0 / 2) * 100 + ((tours[i].number - tours[i + 1].number) * 1.0 / (pow(2, n + 1))) * 100;
+				double probability_of_winning_first = (1.0 / 2) * 100 + ((tours[i] - tours[i + 1]) * 1.0 / (pow(2, n + 1))) * 100;
 				double probability_of_winning_second = 100 - probability_of_winning_first;
 				double result = rand() * 100.0 / RAND_MAX;
 				if (result <= probability_of_winning_first) {
-					teams[tours[i + 1].number - 1].win += 1;
-					teams[tours[i].number - 1].lose += 1;
-					tmp.push_back(tours[i + 1].number);
+					teams[tours[i + 1] - 1].win += 1;
+					teams[tours[i] - 1].lose += 1;
+					tmp.push_back(tours[i + 1]);
 				}
 				else {
-					teams[tours[i].number - 1].win += 1; 
-					teams[tours[i + 1].number - 1].lose += 1;
-					tmp.push_back(tours[i].number);
+					teams[tours[i] - 1].win += 1; 
+					teams[tours[i + 1] - 1].lose += 1;
+					tmp.push_back(tours[i]);
 				}
 			}
 		}
 
 		tmp_num /= 2;
 		for (int i = 0; i < tmp_num; i++) {
-			tours[i].number = tmp[i];
-			tours[i].win = 0;
-			tours[i].lose = 0;
+			tours[i] = tmp[i];
 		}
 	}
-
-	delete[] tours;
 
 	teams = sort(0, num_of_teams, teams);
 
@@ -417,7 +412,7 @@ struct team* elemination(unsigned n, unsigned num_of_teams, team* teams) {
 	return (teams);
 } 
 
-int main() {
+void main() {
 	srand(time(NULL));
 	unsigned int n;
 	cout << "Enter a power of two: ";
@@ -425,7 +420,7 @@ int main() {
 	unsigned num_of_teams{ (unsigned)pow(2, n) };
 	cout << "Number of teams: " << num_of_teams << "\n";
 
-	team *teams = new team[num_of_teams];
+	team* teams = new team[num_of_teams];
 	teams = teams_init(num_of_teams, teams);
 	
 	// Êğóãîâîé òóğíèğ
@@ -437,8 +432,6 @@ int main() {
 	// Elimination
 	teams = elemination(n, num_of_teams, teams);
 
-	delete[] teams;
-	return 0;
 	// Îøèáêà ÍÀĞÓØÅÍÈÅ ÏĞÀÂ ÄÎÑÒÓÏÀ ÏĞÈ ×ÒÅÍÈÈ ÏÎ ÀÄĞÅÑÓ
 	// Î×ÈÑÒÈÒÜ ÏÀÌßÒÜ
 }
