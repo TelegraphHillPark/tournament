@@ -10,11 +10,11 @@ using namespace std;
 
 // Таблицу (матрицу) с результатами DONE, отсортировать с одинаковыми очками по ней. (мб while'ом) после первой сортировки НЕ РОБИТ ЕСЛИ БОЛЬШЕ ДВУХ КОМАНД С ОДИНАК ОЧКАМИ DONE
 
-// Швейцарская: рекурсивный алгоритм по индексам, сорт по части массива.
+// Швейцарская: рекурсивный алгоритм по индексам, сорт по части массива. DONE
 
 // Турнир с немедленным выбыванием
 
-//ОСВОБОЖДЕНИЕ ПАМЯТИ
+//ОСВОБОЖДЕНИЕ ПАМЯТИ DONE
 
 typedef struct team {
 	unsigned number;
@@ -243,7 +243,7 @@ struct team* circle(unsigned n, unsigned num_of_teams, team* teams) {
 		cout << teams[i].win << "  ";
 	}
 
-	delete tab;
+	delete[] tab;
 
 	return (teams);
 }
@@ -254,7 +254,7 @@ struct team* swiss_rec(unsigned num_of_teams,  unsigned n, unsigned x, unsigned 
 	if (len == 1) return 0;
 
 	for (unsigned i = x; i < x + len / 2; i++) {
-		if (teams[i].number <= teams[x + len / 2 + i].number) { // не работает, есть x = 2, а y = 4
+		if (teams[i].number <= teams[x + len / 2 + i].number) { 
 			double probability_of_winning_first = (1.0 / 2) * 100 + ((teams[x + len / 2 + i].number - teams[i].number) * 1.0 / (pow(2, n + 1))) * 100;
 			double probability_of_winning_second = 100 - probability_of_winning_first;
 			double result = rand() * 100.0 / RAND_MAX;
@@ -314,6 +314,109 @@ struct team* swiss(unsigned n, unsigned num_of_teams, team* teams) {
 	return (teams);
 }
 
+// Добавить сортировку в середине таблицы
+struct team* elemination(unsigned n, unsigned num_of_teams, team* teams) { 
+	/*team* elem = new team[num_of_teams];
+	elem = teams_init(num_of_teams, elem);
+
+	for (unsigned i = 0; i < num_of_teams; i++) {
+		unsigned a = rand() % num_of_teams;
+		elem[i] = teams[a];
+	}*/
+
+	vector <int> elem;
+	elem.reserve(num_of_teams);
+	while (elem.size() != num_of_teams) {
+		int a = rand() % num_of_teams + 1;
+		if (!(find(elem.begin(), elem.end(), a) != elem.end())) {
+			elem.push_back(a);
+		}
+	}
+	cout << "\n";
+	cout << "\n";
+	for (unsigned i = 0; i < elem.size(); i++) {
+		cout << elem[i] << "  ";
+	}
+	cout << "\n";
+
+	unsigned tmp_num = num_of_teams;
+	team *tours = new team[tmp_num];
+
+	for (int i = 0; i < num_of_teams; i++) {
+		teams[i].number = i + 1;
+		teams[i].win = 0;
+		teams[i].lose = 0;
+		tours[i].number = elem[i];
+		tours[i].win = 0;
+		tours[i].lose = 0;
+	}
+
+	for (int tour = 0; tour < n; tour++) {
+		vector <int> tmp;
+		tmp.reserve(tmp_num / 2);
+
+		for (int i = 0; i < tmp_num - 1; i += 2) {
+			if (tours[i].number <= tours[i + 1].number) { 
+				double probability_of_winning_first = (1.0 / 2) * 100 + ((tours[i + 1].number - tours[i].number) * 1.0 / (pow(2, n + 1))) * 100;
+				double probability_of_winning_second = 100 - probability_of_winning_first;
+				double result = rand() * 100.0 / RAND_MAX;
+				if (result <= probability_of_winning_first) {
+					teams[tours[i].number - 1].win += 1;
+					teams[tours[i + 1].number - 1].lose += 1;
+					tmp.push_back(tours[i].number);
+				}
+				else {
+					teams[tours[i + 1].number - 1].win += 1;
+					teams[tours[i].number - 1].lose += 1;
+					tmp.push_back(tours[i + 1].number);
+				}
+			}
+			else {
+				double probability_of_winning_first = (1.0 / 2) * 100 + ((tours[i].number - tours[i + 1].number) * 1.0 / (pow(2, n + 1))) * 100;
+				double probability_of_winning_second = 100 - probability_of_winning_first;
+				double result = rand() * 100.0 / RAND_MAX;
+				if (result <= probability_of_winning_first) {
+					teams[tours[i + 1].number - 1].win += 1;
+					teams[tours[i].number - 1].lose += 1;
+					tmp.push_back(tours[i + 1].number);
+				}
+				else {
+					teams[tours[i].number - 1].win += 1; 
+					teams[tours[i + 1].number - 1].lose += 1;
+					tmp.push_back(tours[i].number);
+				}
+			}
+		}
+
+		tmp_num /= 2;
+		for (int i = 0; i < tmp_num; i++) {
+			tours[i].number = tmp[i];
+			tours[i].win = 0;
+			tours[i].lose = 0;
+		}
+	}
+
+	delete[] tours;
+
+	teams = sort(0, num_of_teams, teams);
+
+	cout << "\n";
+	cout << "\n";
+	cout << "\n";
+	for (unsigned i = 0; i != num_of_teams; i++) {
+		cout << teams[i].number << "  ";
+	}
+
+	cout << "\n";
+
+	for (unsigned i = 0; i != num_of_teams; i++) {
+		cout << teams[i].win << "  ";
+	}
+	cout << "\n";
+
+	return (teams);
+} 
+
 int main() {
 	srand(time(NULL));
 	unsigned int n;
@@ -329,9 +432,13 @@ int main() {
 	teams = circle(n, num_of_teams, teams);
 
 	// Swiss
-	swiss(n, num_of_teams, teams);
+	teams = swiss(n, num_of_teams, teams);
 
+	// Elimination
+	teams = elemination(n, num_of_teams, teams);
+
+	delete[] teams;
 	return 0;
-	// Ошибка НАРУШЕНИЕ ПРАВ ДОСТУПА ПРИ ЧТЕНИИ ПО АДРЕССУ
+	// Ошибка НАРУШЕНИЕ ПРАВ ДОСТУПА ПРИ ЧТЕНИИ ПО АДРЕСУ
 	// ОЧИСТИТЬ ПАМЯТЬ
 }
