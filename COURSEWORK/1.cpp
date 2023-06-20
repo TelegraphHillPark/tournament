@@ -20,6 +20,7 @@ typedef struct team {
 	unsigned number;
 	unsigned win;
 	unsigned lose;
+	unsigned who;
 } team;
 
 void teams_init(unsigned num_of_teams, vector <team>& teams) {
@@ -340,11 +341,13 @@ void elemination(unsigned n, unsigned num_of_teams, vector <team>& teams) {
 				if (result <= probability_of_winning_first) {
 					teams[tours[i] - 1].win += 1;
 					teams[tours[i + 1] - 1].lose += 1;
+					teams[tours[i + 1] - 1].who = tours[i];
 					tmp.push_back(tours[i]);
 				}
 				else {
 					teams[tours[i + 1] - 1].win += 1;
 					teams[tours[i] - 1].lose += 1;
+					teams[tours[i] - 1].who = tours[i + 1];
 					tmp.push_back(tours[i + 1]);
 				}
 			}
@@ -355,11 +358,13 @@ void elemination(unsigned n, unsigned num_of_teams, vector <team>& teams) {
 				if (result <= probability_of_winning_first) {
 					teams[tours[i + 1] - 1].win += 1;
 					teams[tours[i] - 1].lose += 1;
+					teams[tours[i] - 1].who = tours[i + 1];
 					tmp.push_back(tours[i + 1]);
 				}
 				else {
 					teams[tours[i] - 1].win += 1; 
 					teams[tours[i + 1] - 1].lose += 1;
+					teams[tours[i + 1] - 1].who = tours[i];
 					tmp.push_back(tours[i]);
 				}
 			}
@@ -372,6 +377,24 @@ void elemination(unsigned n, unsigned num_of_teams, vector <team>& teams) {
 	}
 
 	sort(0, num_of_teams, teams);
+	if (n != 1) {
+		int num_sorted = 2;
+		for (int i = 1; i != n; i++) {
+			vector <team> mid_sort((int)pow(2, i));
+			for (int j = 0; j < num_sorted; j++) {
+				for (int cur = num_sorted; cur < num_sorted + (int)pow(2, i); cur++) {
+					if (teams[cur].who == teams[j].number) {
+						mid_sort.push_back(teams[cur]);
+						break;
+					}
+				}
+			}
+			for (int j = num_sorted; j < num_sorted + (int)pow(2, i); j++) {
+				teams[j] = mid_sort[j];
+			}
+			num_sorted += (int)pow(2, i);
+		}
+	}
 
 	/*cout << "\n";
 	cout << "\n";
@@ -441,7 +464,7 @@ int main() {
 				}
 			}
 			
-			s += (circle_pl - swiss_pl) * (circle_pl - swiss_pl) * 1.0 / ((n * n * n - n) * 1.0);
+			s += ((circle_pl - swiss_pl) * (circle_pl - swiss_pl) * 1.0) / ((num_of_teams * num_of_teams * num_of_teams - num_of_teams) * 1.0);
 		}
 
 		r = 1 - 6 * s;
@@ -478,14 +501,16 @@ int main() {
 	double r = 0.0;
 	int summ = 0;
 	int m = 0;
+	int max = 0;
 	for (int i = 0; i < rs.size(); i++) {
 		sumr += rs[i];
 		summ += ms[i];
+		if (ms[i] > max) max = ms[i];
 	}
 	r = sumr / rs.size();
 	m = summ / ms.size();
 
-	cout << "R = " << r << " M = " << m << "\n";
+	cout << "R = " << r << " M = " << m << " MAX M = " << max << "\n";
 	rs.clear();
 	ms.clear();
 
@@ -529,7 +554,7 @@ int main() {
 				}
 			}
 
-			s += (double)pow((circle_pl - elem_pl) * 1.0, 2 * 1.0) / ((n * n * n - n) * 1.0);
+			s += ((circle_pl - elem_pl) * (circle_pl - elem_pl) * 1.0) / ((num_of_teams * num_of_teams * num_of_teams - num_of_teams) * 1.0);
 		}
 
 		r = 1 - 6 * s;
@@ -566,14 +591,16 @@ int main() {
 	r = 0.0;
 	summ = 0;
 	m = 0;
+	max = 0;
 	for (int i = 0; i < rs.size(); i++) {
 		sumr += rs[i];
 		summ += ms[i];
+		if (ms[i] > max) max = ms[i];
 	}
 	r = sumr / rs.size();
 	m = summ / ms.size();
 
-	cout << "R = " << r << " M = " << m << "\n";
+	cout << "R = " << r << " M = " << m << " MAX M = " << max << "\n";
 	rs.clear();
 	ms.clear();
 
@@ -618,7 +645,7 @@ int main() {
 				}
 			}
 
-			s += (double)pow((swiss_pl - elem_pl) * 1.0, 2 * 1.0) / ((n * n * n - n) * 1.0);
+			s += ((swiss_pl - elem_pl) * (swiss_pl - elem_pl) * 1.0) / ((num_of_teams * num_of_teams * num_of_teams - num_of_teams) * 1.0);
 		}
 
 		r = 1 - 6 * s;
@@ -655,17 +682,18 @@ int main() {
 	r = 0.0;
 	summ = 0;
 	m = 0;
+	max = 0;
 	for (int i = 0; i < rs.size(); i++) {
 		sumr += rs[i];
 		summ += ms[i];
+		if (ms[i] > max) max = ms[i];
 	}
 	r = sumr / rs.size();
 	m = summ / ms.size();
 
-	cout << "R = " << r << " M = " << m << "\n";
+	cout << "R = " << r << " M = " << m << " MAX M = " << max << "\n";
 	rs.clear();
 	ms.clear();
 
 	return 0;
-	// Îøèáêà ÍÀÐÓØÅÍÈÅ ÏÐÀÂ ÄÎÑÒÓÏÀ ÏÐÈ ×ÒÅÍÈÈ ÏÎ ÀÄÐÅÑÓ
 }
