@@ -3,18 +3,9 @@
 #include <ctime>
 #include <algorithm>
 #include <vector>
+#include <random>
+#include <cassert>
 using namespace std;
-
-// Надо проводить много раз по три турнира, для каждого раза считать R и M для пар из трех разных турниров, и посчитать средние R и M. Ответить на вопрос в методичке.
-// Вынести каждый турнир в отдельную функцию или все в одну функцию и выполнять ее несколько раз.
-
-// Таблицу (матрицу) с результатами DONE, отсортировать с одинаковыми очками по ней. (мб while'ом) после первой сортировки НЕ РОБИТ ЕСЛИ БОЛЬШЕ ДВУХ КОМАНД С ОДИНАК ОЧКАМИ DONE
-
-// Швейцарская: рекурсивный алгоритм по индексам, сорт по части массива. DONE
-
-// Турнир с немедленным выбыванием 
-
-//ОСВОБОЖДЕНИЕ ПАМЯТИ DONE
 
 typedef struct team {
 	unsigned number;
@@ -223,6 +214,9 @@ void circle(unsigned n, unsigned num_of_teams, vector <team>& teams) {
 	//	cout << teams[i].win << "  ";
 	//}
 
+	for (int j = 0; j < num_of_teams; j++){
+		delete[] tab[j];
+	}
 	delete[] tab;
 
 	//return (teams);
@@ -293,7 +287,6 @@ void swiss(unsigned n, unsigned num_of_teams, vector <team>& teams) {
 	//return (teams);
 }
 
-// Добавить сортировку в середине таблицы
 void elemination(unsigned n, unsigned num_of_teams, vector <team>& teams) {
 	/*team* elem = new team[num_of_teams];
 	elem = teams_init(num_of_teams, elem);
@@ -303,14 +296,19 @@ void elemination(unsigned n, unsigned num_of_teams, vector <team>& teams) {
 		elem[i] = teams[a];
 	}*/
 
-	vector <int> elem;
-	elem.reserve(num_of_teams);
-	while (elem.size() != num_of_teams) {
+	vector <int> elem(num_of_teams);
+	for (int i = 0; i < num_of_teams; i++) {
+		elem[i] = i + 1;
+	}
+	std::random_device rd;
+	std::mt19937 g(rd());
+	shuffle(elem.begin(), elem.end(), g);
+	/*while (elem.size() != num_of_teams) {
 		int a = rand() % num_of_teams + 1;
 		if (!(find(elem.begin(), elem.end(), a) != elem.end())) {
 			elem.push_back(a);
 		}
-	}
+	}*/
 	/*cout << "\n";
 	cout << "\n";
 	for (unsigned i = 0; i < elem.size(); i++) {
@@ -434,7 +432,9 @@ int main() {
 	teams_init(num_of_teams, teams1);
 	teams_init(num_of_teams, teams2);
 
-	for (int i = 0; i < 100; i++) {
+	double sec = (num_of_teams * num_of_teams * num_of_teams - num_of_teams) * 1.0;
+
+	for (int i = 0; i < 10; i++) {
 
 		circle(n, num_of_teams, teams);
 		for (int j = 0; j < num_of_teams; j++) {
@@ -446,29 +446,42 @@ int main() {
 			teams2[j] = teams[j];
 		}
 
+		vector <unsigned> circle_pls(num_of_teams);
+		vector <unsigned> swiss_pls(num_of_teams);
+		for (int j = 0; j < num_of_teams; j++) {
+			circle_pls[teams1[j].number] = j;
+			swiss_pls[teams2[j].number] = j;
+		}
+
 		int m = 0;
 		double r = 0.0, s = 0.0;
 		for (int g = 0; g < num_of_teams; g++) {
 			if (teams1[g].number == teams2[g].number) m++;
 			int circle_pl, swiss_pl;
-			for (int j = 0; j < num_of_teams; j++) {
-				if (teams1[j].number == g + 1) {
-					circle_pl = j;
-					break;
-				}
-			}
-			for (int j = 0; j < num_of_teams; j++) {
-				if (teams2[j].number == g + 1) {
-					swiss_pl = j;
-					break;
-				}
-			}
+			circle_pl = circle_pls[g + 1];
+			swiss_pl = swiss_pls[g + 1];
 			
-			s += ((circle_pl - swiss_pl) * (circle_pl - swiss_pl) * 1.0) / ((num_of_teams * num_of_teams * num_of_teams - num_of_teams) * 1.0);
+			//for (int j = 0; j < num_of_teams; j++) {
+			//	if (teams1[j].number == g + 1) {
+			//		//circle_pl = j;
+			//		assert(j == circle_pl);
+			//		break;
+			//	}
+			//}
+			//for (int j = 0; j < num_of_teams; j++) {
+			//	if (teams2[j].number == g + 1) {
+			//		//swiss_pl = j;
+			//		assert(j == swiss_pl);
+			//		break;
+			//	}
+			//}
+
+			
+			double fir = (circle_pl - swiss_pl) * (circle_pl - swiss_pl) * 1.0;
+			s += fir;
 		}
 
-		r = 1 - 6 * s;
-
+		r = 1 - 6 * (s / sec);
 		rs.push_back(r);
 		ms.push_back(m);
 
@@ -494,6 +507,8 @@ int main() {
 		teams_init(num_of_teams, teams);
 		teams_init(num_of_teams, teams1);
 		teams_init(num_of_teams, teams2);
+		circle_pls.clear();
+		swiss_pls.clear();
 	}
 
 
@@ -523,7 +538,7 @@ int main() {
 	teams_init(num_of_teams, teams1);
 	teams_init(num_of_teams, teams2);
 
-	for (int i = 0; i < 100; i++) {
+	for (int i = 0; i < 10; i++) {
 
 		circle(n, num_of_teams, teams);
 		for (int j = 0; j < num_of_teams; j++) {
@@ -535,13 +550,22 @@ int main() {
 			teams2[j] = teams[j];
 		}
 
+		vector <unsigned> circle_pls(num_of_teams);
+		vector <unsigned> elem_pls(num_of_teams);
+		for (int j = 0; j < num_of_teams; j++) {
+			circle_pls[teams1[j].number] = j;
+			elem_pls[teams2[j].number] = j;
+		}
+
 		m = 0;
 		r = 0.0;
 		double s = 0.0;
 		for (int g = 0; g < num_of_teams; g++) {
 			if (teams1[g].number == teams2[g].number) m++;
 			int circle_pl, elem_pl;
-			for (int j = 0; j < num_of_teams; j++) {
+			circle_pl = circle_pls[g + 1];
+			elem_pl = elem_pls[g + 1];
+			/*for (int j = 0; j < num_of_teams; j++) {
 				if (teams1[j].number == g + 1) {
 					circle_pl = j;
 					break;
@@ -552,12 +576,12 @@ int main() {
 					elem_pl = j;
 					break;
 				}
-			}
+			}*/
 
-			s += ((circle_pl - elem_pl) * (circle_pl - elem_pl) * 1.0) / ((num_of_teams * num_of_teams * num_of_teams - num_of_teams) * 1.0);
+			double fir = (circle_pl - elem_pl) * (circle_pl - elem_pl) * 1.0;
+			s += fir;
 		}
-
-		r = 1 - 6 * s;
+		r = 1 - 6 * (s / sec);
 
 		rs.push_back(r);
 		ms.push_back(m);
@@ -584,6 +608,8 @@ int main() {
 		teams_init(num_of_teams, teams);
 		teams_init(num_of_teams, teams1);
 		teams_init(num_of_teams, teams2);
+		circle_pls.clear();
+		elem_pls.clear();
 	}
 
 
@@ -613,7 +639,7 @@ int main() {
 	teams_init(num_of_teams, teams1);
 	teams_init(num_of_teams, teams2);
 
-	for (int i = 0; i < 100; i++) {
+	for (int i = 0; i < 10; i++) {
 
 		circle(n, num_of_teams, teams);
 		swiss(n, num_of_teams, teams);
@@ -626,13 +652,22 @@ int main() {
 			teams2[j] = teams[j];
 		}
 
+		vector <unsigned> swiss_pls(num_of_teams);
+		vector <unsigned> elem_pls(num_of_teams);
+		for (int j = 0; j < num_of_teams; j++) {
+			swiss_pls[teams1[j].number] = j;
+			elem_pls[teams2[j].number] = j;
+		}
+
 		m = 0;
 		r = 0.0;
 		double s = 0.0;
 		for (int g = 0; g < num_of_teams; g++) {
 			if (teams1[g].number == teams2[g].number) m++;
 			int swiss_pl, elem_pl;
-			for (int j = 0; j < num_of_teams; j++) {
+			swiss_pl = swiss_pls[g + 1];
+			elem_pl = elem_pls[g + 1];
+			/*for (int j = 0; j < num_of_teams; j++) {
 				if (teams1[j].number == g + 1) {
 					swiss_pl = j;
 					break;
@@ -643,12 +678,12 @@ int main() {
 					elem_pl = j;
 					break;
 				}
-			}
+			}*/
 
-			s += ((swiss_pl - elem_pl) * (swiss_pl - elem_pl) * 1.0) / ((num_of_teams * num_of_teams * num_of_teams - num_of_teams) * 1.0);
+			double fir = (swiss_pl - elem_pl) * (swiss_pl - elem_pl) * 1.0;
+			s += fir;
 		}
-
-		r = 1 - 6 * s;
+		r = 1 - 6 * (s / sec);
 
 		rs.push_back(r);
 		ms.push_back(m);
@@ -675,6 +710,8 @@ int main() {
 		teams_init(num_of_teams, teams);
 		teams_init(num_of_teams, teams1);
 		teams_init(num_of_teams, teams2);
+		swiss_pls.clear();
+		elem_pls.clear();
 	}
 
 
