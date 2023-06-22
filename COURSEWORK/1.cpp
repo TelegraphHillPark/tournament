@@ -23,19 +23,6 @@ void teams_init(unsigned num_of_teams, vector <team>& teams) {
 	//return (teams);
 }
 
-//void sort(unsigned x, unsigned y, vector <team>& teams) {
-//	for (unsigned i = x + 1; i <= y - 1; i++) {
-//		unsigned j = i;
-//		team a = teams[i];
-//		while ((j > 0) && (a.win > teams[j - 1].win)) {
-//			teams[j] = teams[j - 1];
-//			j--;
-//		}
-//		teams[j] = a;
-//	}
-//	//return (teams);
-//}
-
 void sort(unsigned x, unsigned y, vector <team>& teams) {
 	for (int i = x + 1; i <= y - 1; i++) {
 		for (int j = y - 1; j >= i; j--) {
@@ -62,7 +49,6 @@ void win_lose(unsigned num_of_teams, vector <team>& teams, unsigned j, unsigned 
 		teams[i].lose += 1;
 		tab[j][i] = 1;
 	}
-	//return (teams);
 }
 
 void circle(unsigned n, unsigned num_of_teams, vector <team>& teams) {
@@ -84,12 +70,24 @@ void circle(unsigned n, unsigned num_of_teams, vector <team>& teams) {
 		}
 	}
 
-	/*for (unsigned i = 0; i < num_of_teams; i++) {
+	/*cout << "\n";
+
+	for (unsigned i = 0; i < num_of_teams; i++) {
 		for (unsigned j = 0; j < num_of_teams; j++) {
 			cout << tab[i][j] << " ";
 		}
 		cout << "\n";
 	}
+
+	cout << "\n";*/
+
+	/*cout << "\n";
+
+	for (unsigned i = 0; i != num_of_teams; i++) {
+		cout << teams[i].number << "  ";
+	}
+	cout << "\n";
+	cout << "\n";
 
 	cout << "\n";
 
@@ -98,6 +96,8 @@ void circle(unsigned n, unsigned num_of_teams, vector <team>& teams) {
 	}
 	cout << "\n";
 	cout << "\n";*/
+
+	sort(0, num_of_teams, teams);
 
 	unsigned flag = 1;
 	vector <unsigned> same_vic;
@@ -203,23 +203,26 @@ void circle(unsigned n, unsigned num_of_teams, vector <team>& teams) {
 	}
 
 	vector <unsigned>().swap(same_vic);
+	
+	/*cout << "\n";
 
-	//for (unsigned i = 0; i != num_of_teams; i++) {
-	//	cout << teams[i].number << "  ";
-	//}
+	for (unsigned i = 0; i != num_of_teams; i++) {
+		cout << teams[i].number << "  ";
+	}
 
-	//cout << "\n";
+	cout << "\n";
 
-	//for (unsigned i = 0; i != num_of_teams; i++) {
-	//	cout << teams[i].win << "  ";
-	//}
+	for (unsigned i = 0; i != num_of_teams; i++) {
+		cout << teams[i].win << "  ";
+	}
+
+	cout << "\n";*/
 
 	for (int j = 0; j < num_of_teams; j++){
 		delete[] tab[j];
 	}
 	delete[] tab;
 
-	//return (teams);
 }
 
 void swiss_rec(unsigned num_of_teams,  unsigned n, unsigned x, unsigned y, vector <team>& teams) {
@@ -263,28 +266,44 @@ void swiss_rec(unsigned num_of_teams,  unsigned n, unsigned x, unsigned y, vecto
 }
 
 void swiss(unsigned n, unsigned num_of_teams, vector <team>& teams) {
+	vector <team> fixed;
 	for (unsigned i = 0; i < num_of_teams; i++) {
 		teams[i].win = 0;
 		teams[i].lose = 0;
+		fixed.push_back(teams[i]);
 	}
 	swiss_rec(num_of_teams, n, 0, num_of_teams, teams);
-	sort(0, num_of_teams, teams);
-
-	/*cout << "\n";
-	cout << "\n";
-	cout << "\n";
-	for (unsigned i = 0; i != num_of_teams; i++) {
-		cout << teams[i].number << "  ";
+	
+	for (int i = 0; i < num_of_teams; i++) {
+		for (int j = 0; j < num_of_teams; j++) {
+			if (teams[j].number == fixed[i].number) {
+				fixed[i].win = teams[j].win;
+				break;
+			}
+		}
 	}
 
-	cout << "\n";
+	sort(0, num_of_teams, fixed);
 
-	for (unsigned i = 0; i != num_of_teams; i++) {
-		cout << teams[i].win << "  ";
+	for (int j = 0; j < num_of_teams; j++) {
+		teams[j] = fixed[j];
 	}
-	cout << "\n";*/
 
-	//return (teams);
+	fixed.clear();
+	//cout << "\n";
+	//cout << "\n";
+	//cout << "\n";
+	//for (unsigned i = 0; i != num_of_teams; i++) {
+	//	cout << teams[i].number << "  ";
+	//}
+
+	//cout << "\n";
+
+	//for (unsigned i = 0; i != num_of_teams; i++) {
+	//	cout << teams[i].win << "  ";
+	//}
+	//cout << "\n";
+
 }
 
 void elemination(unsigned n, unsigned num_of_teams, vector <team>& teams) {
@@ -317,7 +336,6 @@ void elemination(unsigned n, unsigned num_of_teams, vector <team>& teams) {
 	cout << "\n";*/
 
 	unsigned tmp_num = num_of_teams;
-	/*team *tours = new team[tmp_num];*/
 	vector <int> tours(tmp_num);
 
 	for (int i = 0; i < num_of_teams; i++) {
@@ -419,7 +437,6 @@ int main() {
 	unsigned num_of_teams{ (unsigned)pow(2, n) };
 	cout << "Number of teams: " << num_of_teams << "\n";
 
-	//team* teams = new team[num_of_teams];
 	vector <team> teams(num_of_teams);
 	teams_init(num_of_teams, teams);
 
