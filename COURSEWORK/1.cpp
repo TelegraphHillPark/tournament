@@ -20,7 +20,6 @@ void teams_init(unsigned num_of_teams, vector <team>& teams) {
 		teams[f].win = 0;
 		teams[f].lose = 0;
 	}
-	//return (teams);
 }
 
 void sort(unsigned x, unsigned y, vector <team>& teams) {
@@ -167,7 +166,6 @@ void circle(unsigned n, unsigned num_of_teams, vector <team>& teams) {
 							}
 						}
 					}
-					//cout << same_vic[w] << ": " << tmp2 << "  " << same_vic[w - 1] << ": " << tmp1 << "  ";
 					if (tmp1 < tmp2) {
 						unsigned a = same_vic[w];
 						same_vic[w] = same_vic[w - 1];
@@ -307,14 +305,6 @@ void swiss(unsigned n, unsigned num_of_teams, vector <team>& teams) {
 }
 
 void elemination(unsigned n, unsigned num_of_teams, vector <team>& teams) {
-	/*team* elem = new team[num_of_teams];
-	elem = teams_init(num_of_teams, elem);
-
-	for (unsigned i = 0; i < num_of_teams; i++) {
-		unsigned a = rand() % num_of_teams;
-		elem[i] = teams[a];
-	}*/
-
 	vector <int> elem(num_of_teams);
 	for (int i = 0; i < num_of_teams; i++) {
 		elem[i] = i + 1;
@@ -322,6 +312,7 @@ void elemination(unsigned n, unsigned num_of_teams, vector <team>& teams) {
 	std::random_device rd;
 	std::mt19937 g(rd());
 	shuffle(elem.begin(), elem.end(), g);
+
 	/*while (elem.size() != num_of_teams) {
 		int a = rand() % num_of_teams + 1;
 		if (!(find(elem.begin(), elem.end(), a) != elem.end())) {
@@ -393,6 +384,7 @@ void elemination(unsigned n, unsigned num_of_teams, vector <team>& teams) {
 	}
 
 	sort(0, num_of_teams, teams);
+
 	if (n != 1) {
 		int num_sorted = 2;
 		for (int i = 1; i != n; i++) {
@@ -463,8 +455,8 @@ int main() {
 			teams2[j] = teams[j];
 		}
 
-		vector <unsigned> circle_pls(num_of_teams);
-		vector <unsigned> swiss_pls(num_of_teams);
+		vector <unsigned> circle_pls(num_of_teams + 1);
+		vector <unsigned> swiss_pls(num_of_teams + 1);
 		for (int j = 0; j < num_of_teams; j++) {
 			circle_pls[teams1[j].number] = j;
 			swiss_pls[teams2[j].number] = j;
@@ -567,8 +559,8 @@ int main() {
 			teams2[j] = teams[j];
 		}
 
-		vector <unsigned> circle_pls(num_of_teams);
-		vector <unsigned> elem_pls(num_of_teams);
+		vector <unsigned> circle_pls(num_of_teams + 1);
+		vector <unsigned> elem_pls(num_of_teams + 1);
 		for (int j = 0; j < num_of_teams; j++) {
 			circle_pls[teams1[j].number] = j;
 			elem_pls[teams2[j].number] = j;
@@ -669,8 +661,8 @@ int main() {
 			teams2[j] = teams[j];
 		}
 
-		vector <unsigned> swiss_pls(num_of_teams);
-		vector <unsigned> elem_pls(num_of_teams);
+		vector <unsigned> swiss_pls(num_of_teams + 1);
+		vector <unsigned> elem_pls(num_of_teams + 1);
 		for (int j = 0; j < num_of_teams; j++) {
 			swiss_pls[teams1[j].number] = j;
 			elem_pls[teams2[j].number] = j;
